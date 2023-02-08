@@ -63,18 +63,8 @@ body {
 a {
   color: ${(props) => props.theme.textColor};
   text-decoration: none;
-  padding: 10px;
-  display: block;
 }
-li{
-  transition: all 0.2s linear;
-  :hover{
-    background-color: ${(props) => props.theme.textColor};
-    a{
-      color: ${(props) => props.theme.bgColor};
-    }
-  }
-}
+
 `;
 
 function App() {
