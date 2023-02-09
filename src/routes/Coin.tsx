@@ -191,17 +191,16 @@ function Coin() {
                 <span>{priceInfo?.max_supply}</span>
               </OverviewItem>
             </Overview>
-            <div>
-              <Switch>
-                <Route path={`/${coinId}/price`} component={Price}>
-                  <Price />
-                </Route>
-                <Route path={`/${coinId}/chart`}>
-                  <Chart />
-                </Route>
-              </Switch>
-            </div>
           </Wrapper>
+
+          <Switch>
+            <Route path={`/${coinId}/price`} component={Price}>
+              <Price />
+            </Route>
+            <Route path={`/${coinId}/chart`}>
+              <Chart />
+            </Route>
+          </Switch>
         </>
       )}
     </Container>
