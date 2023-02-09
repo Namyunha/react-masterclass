@@ -73,6 +73,7 @@ function Coins() {
       const resopnse = await fetch("https://api.coinpaprika.com/v1/coins");
       const json = await resopnse.json();
       setCoins(json.slice(0, 100));
+      console.log(json.slice(0, 100));
       setLoading(false);
     })();
   }, []);
@@ -90,7 +91,11 @@ function Coins() {
               <Link
                 to={{
                   pathname: `/${coin.id}`,
-                  state: { name: coin.name },
+                  state: {
+                    name: coin.name,
+                    rank: coin.rank,
+                    symbol: coin.symbol,
+                  },
                 }}
               >
                 <Img
