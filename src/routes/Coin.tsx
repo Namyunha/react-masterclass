@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { useLocation, useParams, Switch, Route } from "react-router-dom";
+import {
+  useLocation,
+  useParams,
+  useRouteMatch,
+  Switch,
+  Route,
+  Link,
+} from "react-router-dom";
 import styled from "styled-components";
 import Chart from "./Chart";
 import Price from "./Price";
@@ -8,17 +15,13 @@ const Container = styled.div`
   padding: 10px 20px;
   height: 100vh;
   max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
   margin: 0 auto;
 `;
 const Wrapper = styled.main`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 60%;
+  height: 40%;
   margin-top: 20px;
 `;
 
@@ -68,14 +71,56 @@ const Loader = styled.span`
   display: block;
   text-align: center;
 `;
+
+const Tabs = styled.div`
+  width: 100%;
+  gap: 20px;
+  display: flex;
+`;
+const Tab = styled.span<{ isActive: boolean }>`
+  width: 50%;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  transition: all 0.2s linear;
+  a {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: ${(props) =>
+      props.isActive ? props.theme.accentColor : props.theme.textColor};
+  }
+  :hover {
+    background-color: ${(props) => props.theme.textColor};
+    position: relative;
+    animation: 1.5s linear infinite updown;
+    @keyframes updown {
+      0% {
+        top: -5px;
+      }
+      50% {
+        top: 2px;
+      }
+      100% {
+        top: -5px;
+      }
+    }
+    a {
+      color: ${(props) => props.theme.bgColor};
+    }
+  }
+`;
+
 interface RouteParams {
   coinId: string;
 }
 
 interface RouterState {
   name: string;
-  rank: string;
-  symbol: string;
 }
 
 interface InfoData {
@@ -140,6 +185,10 @@ function Coin() {
   const { state } = useLocation<RouterState>();
   const [info, setInfo] = useState<InfoData>();
   const [priceInfo, setPriceInfo] = useState<PriceData>();
+  const priceMatch = useRouteMatch(`/${coinId}/price`);
+  const chartMatch = useRouteMatch(`/${coinId}/chart`);
+  console.log(chartMatch);
+  console.log(priceMatch);
   useEffect(() => {
     (async () => {
       const infoData = await (
@@ -148,9 +197,6 @@ function Coin() {
       const priceData = await (
         await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
       ).json();
-      console.log(state);
-      console.log(infoData);
-      console.log(priceData);
       setInfo(infoData);
       setPriceInfo(priceData);
       setLoading(false);
@@ -159,7 +205,9 @@ function Coin() {
   return (
     <Container>
       <Header>
-        <Title>{state?.name || "Loading"}</Title>
+        <Title>
+          {state?.name ? state.name : loading ? "Loading..." : info?.name}
+        </Title>
       </Header>
       {loading ? (
         <Loader>"Loading..."</Loader>
@@ -169,11 +217,11 @@ function Coin() {
             <Overview>
               <OverviewItem>
                 <span>rank:</span>
-                <span>{state.rank}</span>
+                <span>{info?.rank}</span>
               </OverviewItem>
               <OverviewItem>
                 <span>symbol:</span>
-                <span>{state.symbol}</span>
+                <span>{info?.symbol}</span>
               </OverviewItem>
               <OverviewItem>
                 <span>open source:</span>
@@ -191,16 +239,23 @@ function Coin() {
                 <span>{priceInfo?.max_supply}</span>
               </OverviewItem>
             </Overview>
+            <Tabs>
+              <Tab isActive={chartMatch !== null}>
+                <Link to={`/${coinId}/chart`}>Chart</Link>
+              </Tab>
+              <Tab isActive={priceMatch !== null}>
+                <Link to={`/${coinId}/price`}>Price</Link>
+              </Tab>
+            </Tabs>
+            <Switch>
+              <Route path={`/${coinId}/price`}>
+                <Price />
+              </Route>
+              <Route path={`/${coinId}/chart`}>
+                <Chart />
+              </Route>
+            </Switch>
           </Wrapper>
-
-          <Switch>
-            <Route path={`/${coinId}/price`} component={Price}>
-              <Price />
-            </Route>
-            <Route path={`/${coinId}/chart`}>
-              <Chart />
-            </Route>
-          </Switch>
         </>
       )}
     </Container>
